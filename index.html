@@ -28,9 +28,10 @@
         window.onload = function () {
             console.log('loaded');
             loadTasks();
+
+            document.getElementById("taskAdder").hidden = localStorage.getItem('adminPassword') === null;
         }
 
-        // TODO otestovat
         function handleTaskCheckSubmit() {
             console.log('handleTaskCheckSubmit');
             const submit = async () => {
@@ -46,7 +47,16 @@
                     },
                     body: JSON.stringify(body)
                 });
-                console.log(await res.json());
+                const result = await res.json();
+                if (result.valid === undefined) {
+                    alert(`Error: ${result.message}`);
+                } else {
+                    if (result.valid) {
+                        alert("Correct solution!");
+                    } else {
+                        alert("Wrong solution :(");
+                    }
+                }
             };
 
             submit().catch("Solution was not submitted");
@@ -67,7 +77,11 @@
 
         function handleAddTask() {
             console.log('handleAddTask');
-            const adminPassword = 'dummy_password'; // TODO get from cookie or something
+            const adminPassword = localStorage.getItem('adminPassword');
+            if (adminPassword === undefined) {
+                console.error('adminPassword cookie not set');
+                return;
+            }
             const submit = async () => {
                 const body = {
                     name: document.getElementById("taskName").value,
@@ -97,12 +111,7 @@
     <p>Choose a task and upload your result by pasting the text or attaching a file.</p>
     <div>
         <label for="task">Select Task:</label>
-        <!-- TODO take tasks from DB -->
-        <select id="task" name="task">
-            <!-- <option value="task1">Task 1</option>
-            <option value="task2">Task 2</option>
-            <option value="task3">Task 3</option> -->
-        </select>
+        <select id="task" name="task"></select>
         <br><br>
 
         <input type="radio" id="pasteOption" name="uploadOption" value="paste" checked="checked" onclick="toggleForm()">
@@ -120,7 +129,7 @@
 
     <hr />
 
-    <div>
+    <div id="taskAdder">
         <h2>Add task</h2>
         <div>
             Name: <input type="text" id="taskName" /><br />
