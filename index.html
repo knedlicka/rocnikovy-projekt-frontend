@@ -13,6 +13,14 @@
                 const res = await fetch(BACKEND_URL + "/tasks");
                 tasks = await res.json();
                 console.log(tasks);
+
+                const select = document.getElementById("task");
+                for (const task of tasks.tasks) {
+                    const option = document.createElement('option');
+                    option.value = task.name;
+                    option.innerHTML = task.name;
+                    select.appendChild(option);
+                }
             };
             load().catch("Tasks were not loaded");
         }
@@ -91,9 +99,9 @@
         <label for="task">Select Task:</label>
         <!-- TODO take tasks from DB -->
         <select id="task" name="task">
-            <option value="task1">Task 1</option>
+            <!-- <option value="task1">Task 1</option>
             <option value="task2">Task 2</option>
-            <option value="task3">Task 3</option>
+            <option value="task3">Task 3</option> -->
         </select>
         <br><br>
 
