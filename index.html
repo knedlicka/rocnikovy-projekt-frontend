@@ -6,6 +6,22 @@
     <script>
         const BACKEND_URL = "http://localhost:5000";
 
+        tasks = [];
+
+        function loadTasks() {
+            const load = async () => {
+                const res = await fetch(BACKEND_URL + "/tasks");
+                tasks = await res.json();
+                console.log(tasks);
+            };
+            load().catch("Tasks were not loaded");
+        }
+
+        window.onload = function () {
+            console.log('loaded');
+            loadTasks();
+        }
+
         // TODO otestovat
         function handleTaskCheckSubmit() {
             console.log('handleTaskCheckSubmit');
@@ -29,8 +45,8 @@
         }
 
         function toggleForm() {
-            var textPaste = document.getElementById("textPaste");
-            var fileUpload = document.getElementById("fileUpload");
+            const textPaste = document.getElementById("textPaste");
+            const fileUpload = document.getElementById("fileUpload");
 
             if (document.getElementById("pasteOption").checked) {
                 textPaste.style.display = "block";
@@ -39,6 +55,31 @@
                 textPaste.style.display = "none";
                 fileUpload.style.display = "block";
             }
+        }
+
+        function handleAddTask() {
+            console.log('handleAddTask');
+            const adminPassword = 'dummy_password'; // TODO get from cookie or something
+            const submit = async () => {
+                const body = {
+                    name: document.getElementById("taskName").value,
+                    statement: document.getElementById("taskStatement").value,
+                    deadline: document.getElementById("taskDeadline").value,
+                    correctSolution: document.getElementById("taskSolution").value,
+                    adminPassword: adminPassword,
+                };
+                const res = await fetch(BACKEND_URL + "/tasks/add", {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+                console.log(await res.json());
+            };
+
+            submit().catch("Task was not added");
         }
     </script>
 </head>
@@ -67,6 +108,19 @@
         <input type="file" id="fileUpload" name="fileUpload" style="display:none;"><br><br>
 
         <button onclick="handleTaskCheckSubmit()">Submit</button>
+    </div>
+
+    <hr />
+
+    <div>
+        <h2>Add task</h2>
+        <div>
+            Name: <input type="text" id="taskName" /><br />
+            Statement: <textarea id="taskStatement" rows="4" cols="50"></textarea><br />
+            Deadline: <input type="date" id="taskDeadline" /><br />
+            Solution: <textarea id="taskSolution" rows="4" cols="50"></textarea><br />
+            <button onclick="handleAddTask()">Add</button>
+        </div>
     </div>
 </body>
 
