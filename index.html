@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Task Result Checker</title>
+    <script>
+        const BACKEND_URL = "http://localhost:5000";
+
+        // TODO otestovat
+        function handleTaskCheckSubmit() {
+            console.log('handleTaskCheckSubmit');
+            const submit = async () => {
+                const body = {
+                    name: document.getElementById("task").value,
+                    solution: document.getElementById("textPaste").value
+                };
+                const res = await fetch(BACKEND_URL + "/tasks/check", {
+                    method: "POST",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(body)
+                });
+                console.log(await res.json());
+            };
+
+            submit().catch("Solution was not submitted");
+        }
+
+        function toggleForm() {
+            var textPaste = document.getElementById("textPaste");
+            var fileUpload = document.getElementById("fileUpload");
+
+            if (document.getElementById("pasteOption").checked) {
+                textPaste.style.display = "block";
+                fileUpload.style.display = "none";
+            } else {
+                textPaste.style.display = "none";
+                fileUpload.style.display = "block";
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h2>Result Checker</h2>
+    <p>Choose a task and upload your result by pasting the text or attaching a file.</p>
+    <div>
+        <label for="task">Select Task:</label>
+        <!-- TODO take tasks from DB -->
+        <select id="task" name="task">
+            <option value="task1">Task 1</option>
+            <option value="task2">Task 2</option>
+            <option value="task3">Task 3</option>
+        </select>
+        <br><br>
+
+        <input type="radio" id="pasteOption" name="uploadOption" value="paste" checked="checked" onclick="toggleForm()">
+        <label for="pasteOption">Paste Text</label>
+        <br>
+        <input type="radio" id="fileOption" name="uploadOption" value="file" onclick="toggleForm()">
+        <label for="fileOption">Attach File</label>
+        <br><br>
+
+        <textarea id="textPaste" name="textPaste" rows="4" cols="50"></textarea>
+        <input type="file" id="fileUpload" name="fileUpload" style="display:none;"><br><br>
+
+        <button onclick="handleTaskCheckSubmit()">Submit</button>
+    </div>
+</body>
+
+</html>
