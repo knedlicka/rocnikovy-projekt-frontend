@@ -32,30 +32,59 @@
             document.getElementById("taskAdder").hidden = localStorage.getItem('adminPassword') === null;
         }
 
-        function handleTaskCheckSubmit() {
-            console.log('handleTaskCheckSubmit');
-            const submit = async () => {
-                const body = {
-                    name: document.getElementById("task").value,
-                    solution: document.getElementById("textPaste").value
-                };
-                const res = await fetch(BACKEND_URL + "/tasks/check", {
-                    method: "POST",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(body)
-                });
-                const result = await res.json();
-                if (result.valid === undefined) {
-                    alert(`Error: ${result.message}`);
+        async function validate(solution) {
+            const body = {
+                name: document.getElementById("task").value,
+                solution: solution,
+            };
+            const res = await fetch(BACKEND_URL + "/tasks/check", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(body)
+            });
+            return await res.json();
+        };
+
+        function notify(result) {
+            console.log(`Result: ${JSON.stringify(result)}`);
+            if (result.valid === undefined) {
+                alert(`Error: ${result.message}`);
+            } else {
+                if (result.valid) {
+                    alert("Correct solution!");
                 } else {
-                    if (result.valid) {
-                        alert("Correct solution!");
-                    } else {
-                        alert("Wrong solution :(");
+                    alert("Wrong solution :(");
+                }
+            }
+        }
+
+        function handleTaskCheckSubmit() {
+            const submit = async () => {
+                let result;
+                if (document.getElementById("fileOption").checked) {
+                    const fileInput = document.getElementById('fileUpload');
+
+                    if (fileInput.files.length > 0) {
+                        const file = fileInput.files[0];
+
+                        const reader = new FileReader();
+
+                        reader.onload = async function (e) {
+                            const fileContent = e.target.result;
+                            solution = fileContent;
+                            result = await validate(solution);
+                            notify(result);
+                        };
+
+                        reader.readAsText(file);
                     }
+                } else {
+                    solution = document.getElementById("textPaste").value;
+                    result = await validate(solution);
+                    notify(result);
                 }
             };
 
